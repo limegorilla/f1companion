@@ -34,7 +34,7 @@ struct HomeView: View {
     var body: some View {
         
          NavigationView {
-                        List {
+            List {
                             Section {
                                 ForEach(results, id: \.Key) { result in
                                     VStack(alignment: .leading) {

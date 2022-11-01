@@ -7,23 +7,61 @@
 //
 
 import SwiftUI
+import UserNotifications
 
 struct SettingsView: View {
     
-    @AppStorage("favoriteDriver") var favoriteDriver = "Charles Leclerc"
+
     
-    let drivers = ["Charles Leclerc", "Max Verstappen", "Lando Norris"]
-    let teams = ["Red Bull RBPT"]
+    @AppStorage("favoriteDriver") var favoriteDriver = "Select"
+    @AppStorage("favoriteTeam") var favoriteTeam = "Select"
+    @AppStorage("liveActivityOnRace") var liveActivityOnRace = false
+    
+    @State var enableNotifications = false
+    
+
+    let drivers = ["Select", "Charles Leclerc", "Max Verstappen", "Lando Norris"]
+    let teams = ["Select", "Red Bull RBPT", "Mercedes AMG PETRONAS", "Aston Martin", "Haas F1 Team"]
     
     var body: some View {
         NavigationView() {
             Form {
-                Text("hello")
-                
-                Picker("Favorite Driver", selection: $favoriteDriver) {
-                    ForEach(drivers, id: \.self) {
-                        Text($0)
+                Section {
+                    Picker("Favorite Driver", selection: $favoriteDriver) {
+                        ForEach(drivers, id: \.self) {
+                            Text($0)
+                        }
                     }
+                    Picker("Favorite Team", selection: $favoriteTeam) {
+                        ForEach(teams, id: \.self) {
+                            Text($0)
+                        }
+                    }
+                } header: {
+                    Text("Your Favorites ❤️")
+                }
+                
+                Section {
+                    Toggle(isOn: $liveActivityOnRace) {
+                        Text("Live Activities")
+                        Text("Get all the action on your lockscreen and on the Dynamic Island of supported devices")
+                            .font(.caption)
+                    }
+                    Toggle(isOn: $enableNotifications) {
+                        Text("Enable Notifications")
+                    }.onChange(of: enableNotifications) { value in
+                        if (value == true) {
+                            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
+                                if success {
+                                    print("All set!")
+                                } else if let error = error {
+                                    print(error.localizedDescription)
+                                }
+                            }
+                        }
+                    }
+                } header: {
+                    Text("Notifications & Live Activities")
                 }
             }
             .navigationTitle("Settings")
