@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct Response: Codable {
+    let Year: Int
     let Meetings: [Meeting]
 }
 
@@ -30,21 +31,25 @@ struct ContentView: View {
     @State private var results = [Meeting]()
 
     var body: some View {
-        List(results, id: \.Key) { item in
-            VStack(alignment: .leading) {
-                Text(item.OfficialName)
-                    .font(.headline)
-                Text(item.Location)
-                ForEach(item.Sessions, id: \.Key) { meeting in
-                    Text(meeting.`Type`)
+        NavigationView {
+            List(results, id: \.Key) { item in
+                VStack(alignment: .leading) {
+                    Text(item.OfficialName)
+                        .font(.headline)
+                    Text(item.Location)
+                    ForEach(item.Sessions, id: \.Key) { meeting in
+                        Text(meeting.`Type`)
+                    }
                 }
             }
+            .task {
+                await loadData()
+                // Waits for loadData (network req) to complete before loading UI
+            }
+            .navigationTitle("Previous Races")
+            .navigationBarTitleDisplayMode(.automatic)
         }
-        .navigationTitle("Test")
-        .task {
-            await loadData()
-            // Waits for loadData (network req) to complete before loading UI
-        }
+        
         
     }
     func loadData() async {
